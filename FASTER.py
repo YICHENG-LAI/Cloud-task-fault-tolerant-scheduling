@@ -17,9 +17,11 @@ def creatHost(num_vm):
 num_host = 4
 num_vm = 2
 max_vm = 10 # max number of VMs in a host
-num_task = 500
+num_task = 50
 beta = 0.2 # ratio of cloudlets that have parent cloudlets
 dependence = True # generate dependent cloudlets or not
+tt = 1 # assume transmisson time between cloudlets is 1s
+
 
 # Initialize hosts and VMs
 Host = creatDatacenter(num_host,max_vm)
@@ -43,7 +45,7 @@ task_map = {}
 
 while not flag:
     for i in tasks:
-        scheduler = Scheduler(Host, allocation, count, Parent, max_vm, task_map)
+        scheduler = Scheduler(Host, allocation, count, Parent, max_vm, task_map, tt)
         pr = scheduler.primary(tasks[i], i)  
         bc = scheduler.backup(tasks[i], i)
         if pr and bc:
@@ -54,10 +56,12 @@ while not flag:
     # if not missddl:
     #     flag = True
     flag = True
-
+print('---------------------------------------------')
+print('Scheduling Finished!')
 # Guarantee Ratio
 GR = 1 - len(missddl) / num_task
 
 # print(allocation)
-print(missddl)
+print('---------------------------------------------')
+print('Missed Deadline tasks:'+ str(len(missddl)))
 print('GR='+str(GR*100)+'%')

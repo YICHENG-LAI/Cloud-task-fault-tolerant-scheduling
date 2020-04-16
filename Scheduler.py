@@ -2,13 +2,13 @@ import numpy as np
 from Resource import *
 
 class Scheduler():
-    def __init__(self, host, allocation_map, count, Parent, max_vm, task_map):
+    def __init__(self, host, allocation_map, count, Parent, max_vm, task_map, tt):
         self.Ha = host
         self.map = allocation_map
         self.count = count
         self.r_vm = 15 # assume active a VM need 15s
         self.P = Parent
-        self.tt = 0 # assume transmisson time is 0s
+        self.tt = tt
         self.VM = 1000 # MIPS
         self.resource = Resource(max_vm)
         self.task_map = task_map

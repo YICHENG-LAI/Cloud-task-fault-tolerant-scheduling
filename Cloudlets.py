@@ -4,6 +4,7 @@ import random
 class Cloudlets():
     def __init__(self):
         self.list = {}
+        print('-------------------------------------')
         print('Start generating cloudlets...')
 
     # randomly generate indepent task list as t_n:(arrival, deadline, length)
@@ -23,6 +24,7 @@ class Cloudlets():
             tlist[task_name] = (arrival, deadline, length)
             self.list[task_name] = (arrival, deadline, length)
         print(str(num_task) + ' Independent cloudlets generated ...')
+        print('-------------------------------------')
         return self.list
 
     # randomly generate dependent task list
@@ -48,6 +50,7 @@ class Cloudlets():
                 parent[i+'_B'] = [potential[rand_id[0]],potential[rand_id[1]]]
             potential.append(i+'_P')
         print('Dependent cloudlets generated !')
+        print('-------------------------------------')
         return parent
 
 
