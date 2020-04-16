@@ -19,4 +19,8 @@ from Cloudlets import *
 # x = a['host_0']['VM_0']
 # x['m'] = 2
 # print(x)
-print('GR= %-10.2'%(2))
+# print('GR= %-10.2'%(2))
+# rand = random.randrange(10)
+# ran = np.random.randint(1,size=1)
+ran = float('inf')
+print(ran)
