@@ -17,7 +17,7 @@ def creatHost(num_vm):
 num_host = 4
 num_vm = 2
 max_vm = 10 # max number of VMs in a host
-num_task = 50
+num_task = 500
 beta = 0.2 # ratio of cloudlets that have parent cloudlets
 dependence = True # generate dependent cloudlets or not
 tt = 1 # assume transmisson time between cloudlets is 1s
@@ -58,10 +58,28 @@ while not flag:
     flag = True
 print('---------------------------------------------')
 print('Scheduling Finished!')
+
+            ########################
+            #      Evalutation     #
+            ########################
+
 # Guarantee Ratio
 GR = 1 - len(missddl) / num_task
+# Host Active Time
+all_VM = int(sum(count[1]))
+vm_active = all_VM * 15
+task_time = 0
+for i in task_map:
+    task_time = max(task_time, task_map[i][1])
+HAT = task_time + vm_active
+# Ratio of task time over host t
+# ime
+RTH = task_time / HAT
 
 # print(allocation)
 print('---------------------------------------------')
 print('Missed Deadline tasks:'+ str(len(missddl)))
-print('GR='+str(GR*100)+'%')
+print('GR = '+str(GR*100)+'%')
+print('HAT = '+str(HAT)+' s')
+print('RTH = %-10.2f' %(RTH))
+print('Number of VM have been used:'+str(all_VM))
