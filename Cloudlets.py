@@ -55,9 +55,12 @@ class Cloudlets():
 
 
 if __name__ == "__main__":
-    num_task = 10
+    num_task = 20
     cloudlets = Cloudlets()
     tasks = cloudlets.generate_ind(num_task)
     parent = cloudlets.generate_d(0.2)
+    print('Generated Cloudlets:')
     print(tasks)
+    print('-------------------------------------')
+    print('Parent Cloudlets:')
     print(parent)

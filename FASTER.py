@@ -14,14 +14,16 @@ def creatHost(num_vm):
     return host
 
 # Initial Parameters
-num_host = 4
+num_host = 2
 num_vm = 2
 max_vm = 10 # max number of VMs in a host
-num_task = 500
+max_host = 10 # max number of hosts in a datacenter
+num_task = 100
 beta = 0.2 # ratio of cloudlets that have parent cloudlets
-dependence = True # generate dependent cloudlets or not
 tt = 1 # assume transmisson time between cloudlets is 1s
 
+dependence = True # generate dependent cloudlets or not
+Dynamic = True # apply dynamic resource utilization or not
 
 # Initialize hosts and VMs
 Host = creatDatacenter(num_host,max_vm)
@@ -45,14 +47,15 @@ task_map = {}
 
 while not flag:
     for i in tasks:
-        scheduler = Scheduler(Host, allocation, count, Parent, max_vm, task_map, tt)
+        scheduler = Scheduler(Host, allocation, count, Parent, max_vm, task_map, tt, max_host, Dynamic)
         pr = scheduler.primary(tasks[i], i)  
         bc = scheduler.backup(tasks[i], i)
+        Host, allocation, count, task_map = scheduler.get()
         if pr and bc:
             continue
         else:
             missddl.append(i)
-        Host, allocation, count, task_map = scheduler.get()
+        
     # if not missddl:
     #     flag = True
     flag = True
@@ -67,6 +70,7 @@ print('Scheduling Finished!')
 GR = 1 - len(missddl) / num_task
 # Host Active Time
 all_VM = int(sum(count[1]))
+all_host = len(count[0])
 vm_active = all_VM * 15
 task_time = 0
 for i in task_map:
@@ -83,3 +87,4 @@ print('GR = '+str(GR*100)+'%')
 print('HAT = '+str(HAT)+' s')
 print('RTH = %-10.2f' %(RTH))
 print('Number of VM have been used:'+str(all_VM))
+print('Number of Host have been used:'+ str(all_host))

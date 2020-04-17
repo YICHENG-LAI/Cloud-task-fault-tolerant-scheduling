@@ -2,7 +2,7 @@ import numpy as np
 from Resource import *
 
 class Scheduler():
-    def __init__(self, host, allocation_map, count, Parent, max_vm, task_map, tt):
+    def __init__(self, host, allocation_map, count, Parent, max_vm, task_map, tt, max_host, Dynamic=True):
         self.Ha = host
         self.map = allocation_map
         self.count = count
@@ -10,8 +10,9 @@ class Scheduler():
         self.P = Parent
         self.tt = tt
         self.VM = 1000 # MIPS
-        self.resource = Resource(max_vm)
+        self.resource = Resource(max_vm, max_host)
         self.task_map = task_map
+        self.Dynamic = Dynamic
 
     def primary(self, task, index):
         # sort hosts by the count of scheduled primary copies
@@ -67,9 +68,9 @@ class Scheduler():
         if eft > ddl:
             print('Can not achieve deadline, Allocate task '+index+' Failed')
             print('Try to scale up resources...')
-            if self.resource.scale_up(self.map, self.count):
+            if self.Dynamic and self.resource.scale_up(self.map, self.count):
                 # allocate task to new VM
-                host_id, vm_name = self.resource.get()
+                host_id, vm_name, self.count = self.resource.get()
                 self.count[0][host_id] += 1
                 self.count[1][host_id] += 1
                 if not parent:
@@ -86,7 +87,7 @@ class Scheduler():
                 eft_p = est + e_p
                 host_name = 'host_'+ str(host_id)
                 T_name = index + '_P'
-                T_para = (est,eft_p,e_p)
+                T_para = (est,eft_p,e_p,host_name,vm_name)
                 self.add_map(host_name, vm_name, T_para, T_name)
                 self.task_map[T_name] = T_para
                 print ('Allocate task '+T_name+' to '+host_name+' and '+vm_name+' Success')
@@ -96,12 +97,12 @@ class Scheduler():
             else:
                 # allocation
                 # self.count[v[0]][v[1]] += 1
-                host_name = 'host_' + str(v[0])
-                vm_name = 'VM_' + str(v[1])
+                # host_name = 'host_' + str(v[0])
+                # vm_name = 'VM_' + str(v[1])
                 T_name = index + '_P'
                 # self.map[host_name] = {vm_name:index}
                 # self.task_map[T_name] = (0,float('inf'),0)
-                print ('Allocate task '+T_name+' to '+host_name+' and '+vm_name+' Failed')
+                print ('Allocate task '+T_name+'Failed')
                 return False
         else:
                 # allocation
@@ -109,7 +110,7 @@ class Scheduler():
                 host_name = 'host_' + str(v[0])
                 vm_name = 'VM_' + str(v[1])
                 T_name = index + '_P'
-                T_para = (est,eft,e_p)
+                T_para = (est,eft,e_p,host_name,vm_name)
                 self.add_map(host_name, vm_name, T_para, T_name)
                 self.task_map[T_name] = T_para
                 # self.map[host_name] = {vm_name:{T_name:T_para}}
@@ -134,10 +135,12 @@ class Scheduler():
         # scheduling
         while alpha_end < len(self.Ha):
             for host_id in H_candidate:
-                # judgement ......
-                # ...
+                # judgement 
                 host_name = 'host_' + str(host_id)
                 num_vm = len(self.map[host_name])
+
+                if index+'_P' in self.task_map and self.task_map[index+'_P'][3] == host_name:
+                    continue
                 for vm_id in range(num_vm):
                     # earliest start time
                     if not parent:
@@ -173,9 +176,9 @@ class Scheduler():
             print('Can not achieve deadline, Allocate task '+index+' Failed')
             print('Try to scale up resources...')
             # scale up the resources
-            if self.resource.scale_up(self.map, self.count):
+            if self.Dynamic and self.resource.scale_up(self.map, self.count):
                 # allocate task to new VM
-                host_id, vm_name = self.resource.get()
+                host_id, vm_name, self.count = self.resource.get()
                 self.count[1][host_id] += 1
                 if not parent:
                     est = max(arrival, self.r_vm)
@@ -189,8 +192,9 @@ class Scheduler():
                 e_b = length / self.VM
                 # earliest finish time
                 eft_b = est + e_b
+                host_name = 'host_'+ str(host_id)
                 T_name = index + '_B'
-                T_para = (est,eft_b,e_b)
+                T_para = (est,eft_b,e_b,host_name,vm_name)
                 self.add_map(host_name, vm_name, T_para, T_name)
                 self.task_map[T_name] = T_para
                 print ('Allocate task '+T_name+' to '+host_name+' and '+vm_name+' Success')
@@ -198,18 +202,18 @@ class Scheduler():
             else:
                 # allocation
                 # self.count[v[0]][v[1]] += 1
-                host_name = 'host_' + str(v[0])
-                vm_name = 'VM_' + str(v[1])
+                # host_name = 'host_' + str(v[0])
+                # vm_name = 'VM_' + str(v[1])
                 T_name = index + '_B'
                 # self.map[host_name] = {vm_name:index}
-                print ('Allocate task '+T_name+' to '+host_name+' and '+vm_name+' Failed')
+                print ('Allocate task '+T_name+' Failed')
                 return False
         else:
                 # allocation
                 host_name = 'host_' + str(v[0])
                 vm_name = 'VM_' + str(v[1])
                 T_name = index + '_B'
-                T_para = (est,eft,e_b)
+                T_para = (est,eft,e_b,host_name,vm_name)
                 self.add_map(host_name, vm_name, T_para, T_name)
                 self.task_map[T_name] = T_para
         print ('Allocate task '+T_name+' to '+host_name+' and '+vm_name+' Success')
